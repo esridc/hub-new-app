@@ -13,7 +13,7 @@ export class HubNewApp {
 
   @Prop() username: string = 'aturner';
   modal: HTMLCalciteModalElement;
-  private shellPanelEl:HTMLCalciteShellPanelElement;
+  // private shellPanelEl:HTMLCalciteShellPanelElement;
   @State() newAppSelected:boolean = false;
 
   @State() newAppTimestamp: Date = null;
