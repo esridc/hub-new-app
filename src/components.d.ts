@@ -6,19 +6,45 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface HubNewApp {
+    }
+    interface HubNewForm {
+    }
 }
 declare global {
+    interface HTMLHubNewAppElement extends Components.HubNewApp, HTMLStencilElement {
+    }
+    var HTMLHubNewAppElement: {
+        prototype: HTMLHubNewAppElement;
+        new (): HTMLHubNewAppElement;
+    };
+    interface HTMLHubNewFormElement extends Components.HubNewForm, HTMLStencilElement {
+    }
+    var HTMLHubNewFormElement: {
+        prototype: HTMLHubNewFormElement;
+        new (): HTMLHubNewFormElement;
+    };
     interface HTMLElementTagNameMap {
+        "hub-new-app": HTMLHubNewAppElement;
+        "hub-new-form": HTMLHubNewFormElement;
     }
 }
 declare namespace LocalJSX {
+    interface HubNewApp {
+    }
+    interface HubNewForm {
+    }
     interface IntrinsicElements {
+        "hub-new-app": HubNewApp;
+        "hub-new-form": HubNewForm;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "hub-new-app": LocalJSX.HubNewApp & JSXBase.HTMLAttributes<HTMLHubNewAppElement>;
+            "hub-new-form": LocalJSX.HubNewForm & JSXBase.HTMLAttributes<HTMLHubNewFormElement>;
         }
     }
 }

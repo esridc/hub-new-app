@@ -1,5 +1,5 @@
 {
-  "name": "REPLACE_PROJECT_NAME",
+  "name": "hub-new-app",
   "version": "0.0.1",
   "description": "Template for creating prototypes with stencil",
   "main": "dist/index.cjs.js",
@@ -32,6 +32,8 @@
     "generate": "stencil generate"
   },
   "dependencies": {
+    "@esri/arcgis-rest-portal": "^4.3.0",
+    "@esri/arcgis-rest-request": "^4.2.0",
     "@stencil/core": "^2.13.0",
     "@types/node": "^18.14.0"
   },
