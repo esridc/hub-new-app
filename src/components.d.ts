@@ -7,6 +7,7 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface HubNewApp {
+        "username": string;
     }
     interface HubNewForm {
     }
@@ -31,6 +32,7 @@ declare global {
 }
 declare namespace LocalJSX {
     interface HubNewApp {
+        "username"?: string;
     }
     interface HubNewForm {
     }

@@ -1,3 +1,17 @@
 :host {
   display: block;
 }
+.new-options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  row-gap: 20px;;
+}
+
+#content {
+  height: 50vh;
+}
+.app calcite-button {
+  padding-left: 5px;
+}
