@@ -30,7 +30,7 @@ export class HubNewApp {
           ref={(el) => this.modal = el as HTMLCalciteModalElement}
         >
           <div slot="header">
-            Create a new Application
+            Add an Application
           </div>
           <div id="content" slot="content">
             
@@ -287,11 +287,11 @@ export class HubNewApp {
       <calcite-button
         appearance="solid"
         color="blue"
-        scale="s"
+        scale="l"
         
         onClick={() => this.openModal()}
       >
-        New App
+        Add an App
       </calcite-button>
     );
   }
