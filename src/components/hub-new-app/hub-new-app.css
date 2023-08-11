@@ -12,6 +12,9 @@
 #content {
   height: 50vh;
 }
+.app {
+  margin: 10px;
+}
 .app calcite-button {
   padding-left: 5px;
 }

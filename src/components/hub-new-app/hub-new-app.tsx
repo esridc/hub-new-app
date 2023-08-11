@@ -17,6 +17,7 @@ export class HubNewApp {
   @State() newAppSelected:boolean = false;
 
   @State() newAppTimestamp: Date = null;
+  @State() existingItems = [];
 
   render() {
     return (
@@ -46,15 +47,46 @@ export class HubNewApp {
   }
 
   componentWillLoad() {
+    this.checkforExistingContent();
+
     setInterval(() => {
-      this.checkForContent();
+      this.checkforExistingContent();
+    }, 5000);
+    setInterval(() => {
+      this.checkForNewContent();
     }, 1000);
   }
-  async checkForContent() {
+  async checkforExistingContent() {
+
+    // Existing Apps
+
+    const query = new SearchQueryBuilder()            
+          .match(this.username).in("owner")
+          .and()
+          .startGroup()
+          // TODO enumerate over all builders
+            .match("StoryMap").in("type")
+            .or()
+            .match("Dashboard").in("type")
+            .or()
+            .match("Web Mapping Application").in("type")
+          .endGroup()
+
+    await searchItems({
+      q: query,
+      sortOrder: "desc",
+      sortField: "created"
+    }).then((response) => {
+      this.existingItems = response.results;
+    })
+  }
+
+  async checkForNewContent() {
     if(!this.newAppTimestamp) {
       return;
     }
 
+    // New App
     const startDate = this.newAppTimestamp;
     // const startDate = new Date("2020-09-01");
     const endDate = new Date("2030-09-01");
@@ -67,21 +99,60 @@ export class HubNewApp {
           .and()
           .match(this.getBuilder(this.appType).type).in("type")
           .and()
-          .match("aturner").in("owner")
+          .match(this.username).in("owner")
 
     let items = [];
-    await searchItems(query).then((response) => {
+    await searchItems({
+      q: query,
+      sortOrder: "desc",
+      sortField: "created"
+    }).then((response) => {
       items = response.results;
     })
     
     if(items.length > 0) {
       this.app = items[0];
+      // Stop timer!
+      this.newAppTimestamp = null;
     }
   }
 
+  
+
+  renderGallery() {
+    const cards = this.existingItems?.map((item) => {
+      return (
+        <calcite-card class="app">
+          <span slot="title">
+            {item.title}
+          </span>
+          <span slot="subtitle">
+            {item.snippet}
+          </span>
+          <calcite-chip slot="footer-start" value={item.type} appearance="outline-fill" kind="neutral" icon="add-in">
+            {item.type}
+          </calcite-chip>
+          <calcite-button slot="footer-end" href={this.getBuilder(item.type).view + item.id} target="_new" appearance='outline'>
+            Open App
+          </calcite-button>  
+          <calcite-button slot="footer-end" href="javascript:window.alert('Add App')" appearance='solid'>
+              Add App
+          </calcite-button>
+        </calcite-card>
+      )
+    })
+    console.log("items", {items: this.existingItems, cards})
+
+    return (
+      <div>
+        {cards}
+      </div>
+    )
+  }
+
   @State() app: any = null;
-  @State() showNewApp: boolean = true;
-  @State() showSelectApp: boolean = false;
+  @State() showNewApp: boolean = false;
+  @State() showSelectApp: boolean = true;
   
   renderContent() {
     return (
@@ -95,33 +166,37 @@ export class HubNewApp {
           >
             <calcite-action-bar slot="action-bar">
                 <calcite-action 
-                  // ref={(el) => this.actionChannelsEl = el} 
-                  onClick={() => { this.showNewApp = true; this.showSelectApp = !this.showNewApp}}
-                  active={this.showNewApp}
-                  text="New App" 
-                  icon="add-in-new" indicator></calcite-action>
-                <calcite-action 
                   // ref={(el) => this.actionMapEl = el} 
                   active={this.showSelectApp}
+                  indicator={this.showSelectApp}
                   onClick={() => { this.showSelectApp = true; this.showNewApp = !this.showSelectApp}}
                   icon="search" 
-                  text="Existing App"></calcite-action>
+                  text="Existing App" 
+                  ></calcite-action>
+                <calcite-action 
+                  // ref={(el) => this.actionChannelsEl = el} 
+                  active={this.showNewApp}
+                  indicator={this.showNewApp}
+                  onClick={() => { this.showNewApp = true; this.showSelectApp = !this.showNewApp}}
+                  text="New App" 
+                  icon="add-in-new"></calcite-action>                  
             </calcite-action-bar>
         </calcite-shell-panel>
         <calcite-panel heading={this.showNewApp ? `Create a New App` : `Search for Apps`}>
-              {this.showNewApp ? this.renderNewContent() :  "Gallery here"}
+              {this.showNewApp ? this.renderNewContent() :  this.renderGallery()}
             </calcite-panel>
     </calcite-shell>
     )
   }
   renderNewContent() {
+    if(!!this.app) {
+      return this.renderApp();
+    }
 
     if(!this.newAppTimestamp) {
       return this.renderNewOptions();
     }
-    if(!!this.app) {
-      return this.renderApp();
-    }
+
 
     // Nothing else, so loading!
     return this.renderLoading(); 
@@ -129,12 +204,24 @@ export class HubNewApp {
   renderApp() {
     return (
       <calcite-card class="app">
-        <span slot="title">{this.app.title}</span>
-        <span slot="subtitle">{this.app.snippet}</span>
+        <span slot="title">
+        <calcite-label>
+          App Title
+          <calcite-input placeholder="Enter App Title" value={this.app.title}></calcite-input>
+        </calcite-label>
+ 
+          
+        </span>
+        <span slot="subtitle">
+        <calcite-label>
+          App Summary
+          <calcite-input placeholder="Enter App Title" value={this.app.snippet}></calcite-input>
+        </calcite-label>       
+        </span>
         <calcite-chip slot="footer-start" value={this.app.type} appearance="outline-fill" kind="neutral" icon="add-in">
         {this.app.type}
         </calcite-chip>
-        <calcite-button slot="footer-end" href='#' appearance='outline'>
+        <calcite-button slot="footer-end" href="javascript:window.alert('Open Workspace')" appearance='outline'>
             Manage App
         </calcite-button>
         <calcite-button slot="footer-end" href={this.getBuilder(this.appType).view + this.app.id} target="_new">
@@ -179,6 +266,13 @@ export class HubNewApp {
       view: "https://storymaps.arcgis.com/stories/"
     }
   ]
+  private defaultBuilder = {
+    name: "ArcGIS Online",
+    type: "None",
+    key: "ago",
+    new: "https://dcdev.maps.arcgis.com/home/",
+    view: "https://dcdev.maps.arcgis.com/home/items.html?id="
+  }
 
   renderLoading() {
     return(
@@ -210,9 +304,12 @@ export class HubNewApp {
   }
 
   getBuilder(type: string) {
-    const builder = this.builders.filter((builder) => {
+    let builder = this.builders.filter((builder) => {
       return builder.key === type;
     })
+    if(builder.length === 0) {
+      builder = [this.defaultBuilder]
+    }
     return builder[0]
   }
   renderNewOptions() {
